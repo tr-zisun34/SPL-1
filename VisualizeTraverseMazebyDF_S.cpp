@@ -1,12 +1,12 @@
 #include <iostream>
 #include <graphics.h>
 
-#define ROWS 16
-#define COLS 21
+#define MAZE_ROWS 16
+#define MAZE_COLS 21
 
-int maze[ROWS][COLS] = {
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+int mazeLayout[MAZE_ROWS][MAZE_COLS] = {
+    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
     {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
     {1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
     {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
@@ -23,53 +23,50 @@ int maze[ROWS][COLS] = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1},
 };
 
-int found = 0;
-int path[ROWS][COLS];
+int goalFound = 0;
+int pathTaken[MAZE_ROWS][MAZE_COLS];
 
-void check(int i, int j) {
-    if (i < 0 || j < 0 || i >= ROWS || j >= COLS || found || maze[i][j] == 1 || path[i][j] == 1) {
-        return;
-    }
+void renderMaze() {
+    for (int i = 0; i < MAZE_ROWS; i++) {
+        for (int j = 0; j < MAZE_COLS; j++) {
+            int xCoord = j * 30;
+            int yCoord = i * 30;
 
-    path[i][j] = 1;
-
-    if (maze[i][j] == 2) {
-        found = 1;
-        return;
-    }
-
-    check(i + 1, j);
-    check(i, j + 1);
-    check(i, j - 1);
-    check(i - 1, j);
-
-    if (!found) {
-        path[i][j] = 0;
-    }
-}
-
-void drawMaze() {
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            int x = j * 30; // Adjust these values based on your desired grid size
-            int y = i * 30;
-
-            if (maze[i][j] == 1) {
-                // Draw walls
-                rectangle(x, y, x + 30, y + 30);
-            } else if (maze[i][j] == 2) {
-                // Draw goal
-                circle(x + 15, y + 15, 10);
+            if (mazeLayout[i][j] == 1) {
+                rectangle(xCoord, yCoord, xCoord + 30, yCoord + 30);
+            } else if (mazeLayout[i][j] == 2) {
+                circle(xCoord + 15, yCoord + 15, 10);
             }
         }
     }
 }
 
-void drawPath() {
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            if (path[i][j] == 1) {
-                // Draw path
+void explorePaths(int row, int col) {
+    if (row < 0 || col < 0 || row >= MAZE_ROWS || col >= MAZE_COLS || goalFound || mazeLayout[row][col] == 1 || pathTaken[row][col] == 1) {
+        return;
+    }
+
+    pathTaken[row][col] = 1;
+
+    if (mazeLayout[row][col] == 2) {
+        goalFound = 1;
+        return;
+    }
+
+    explorePaths(row + 1, col);
+    explorePaths(row, col + 1);
+    explorePaths(row, col - 1);
+    explorePaths(row - 1, col);
+
+    if (!goalFound) {
+        pathTaken[row][col] = 0;
+    }
+}
+
+void drawPathOnMaze() {
+    for (int i = 0; i < MAZE_ROWS; i++) {
+        for (int j = 0; j < MAZE_COLS; j++) {
+            if (pathTaken[i][j] == 1) {
                 setfillstyle(SOLID_FILL, GREEN);
                 bar(j * 30 + 5, i * 30 + 5, (j + 1) * 30 - 5, (i + 1) * 30 - 5);
             }
@@ -78,32 +75,32 @@ void drawPath() {
 }
 
 int main() {
-    int startI = 1;  // Starting row index
-    int startJ = 1;  // Starting column index
+    int startingRow = 0;
+    int startingCol = 0;
 
-    int gd = DETECT, gm;
-    initgraph(&gd, &gm, ""); // Use an empty string for default graphics mode
+    int graphicsDriver = DETECT, graphicsMode;
+    initgraph(&graphicsDriver, &graphicsMode, "");
 
     cleardevice();
 
-    drawMaze();
+    renderMaze();
 
-    check(startI, startJ);
+    explorePaths(startingRow, startingCol);
 
-    if (found) {
-        std::cout << "Path to reach 2:\n";
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (path[i][j] == 1) std::cout << "-> [" << i << "," << j << "] ";
+    if (goalFound) {
+        std::cout << "Path to reach the goal:\n";
+        for (int i = 0; i < MAZE_ROWS; i++) {
+            for (int j = 0; j < MAZE_COLS; j++) {
+                if (pathTaken[i][j] == 1) std::cout << "-> [" << i << "," << j << "] ";
             }
             std::cout << "\n";
         }
     } else {
-        std::cout << "Path to 2 not found!\n";
+        std::cout << "Path to the goal not found!\n";
     }
 
-    if (found) {
-        drawPath();
+    if (goalFound) {
+        drawPathOnMaze();
     }
 
     getch();

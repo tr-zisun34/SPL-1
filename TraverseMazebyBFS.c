@@ -6,8 +6,8 @@
 
 int maze[ROWS][COLS] = {
     // ... (same maze initialization)
-    {1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
     {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
     {1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
     {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
@@ -107,8 +107,8 @@ void bfs(int startI, int startJ) {
 }
 
 int main() {
-    int startI = 1;  // Starting row index
-    int startJ = 1;  // Starting column index
+    int startI = 0;  // Starting row index
+    int startJ = 0;  // Starting column index
 
     bfs(startI, startJ);
 
