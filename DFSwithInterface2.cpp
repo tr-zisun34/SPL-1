@@ -71,7 +71,7 @@ void drawPathOnMaze()
         {
             if (pathTaken[i][j] == 1)
             {
-                setfillstyle(SOLID_FILL, GREEN);
+                setfillstyle(SOLID_FILL, CYAN);
                 bar(j * CELL_SIZE + CELL_SIZE / 6, i * CELL_SIZE + CELL_SIZE / 6,
                     (j + 1) * CELL_SIZE - CELL_SIZE / 6, (i + 1) * CELL_SIZE - CELL_SIZE / 6);
             }
@@ -113,8 +113,8 @@ void explorePaths(int row, int col)
 
 int main()
 {
-    int startingRow = 0;
-    int startingCol = 0;
+    int startingRow ;
+    int startingCol ;
 
     int graphicsDriver = DETECT, graphicsMode;
     initgraph(&graphicsDriver, &graphicsMode, "");
@@ -166,6 +166,11 @@ int main()
     outtextxy(20, 90, "1. Solve Maze by Depth First Search");
 
     int x, y;
+
+    cout << "Enter Starting Row and Column: ";
+    cin >> startingRow;
+    cin >> startingCol;
+
     while (true)
     {
         if (ismouseclick(WM_LBUTTONDOWN))
@@ -181,17 +186,13 @@ int main()
 
                 if (goalFound)
                 {
-                    outtextxy(10, 440, "Path to reach the goal:");
-
+                    cout << "Path to reach the goal: " << endl;
                     for (int i = 0; i < MAZE_ROWS; i++)
                     {
                         for (int j = 0; j < MAZE_COLS; j++)
                         {
                             if (pathTaken[i][j] == 1)
                             {
-                                char coordinates[50];
-                                sprintf(coordinates, "-> [%d,%d] ", i, j);
-                                outtextxy(10, 460 + (i * 20), coordinates);
                                 cout << "-> [" << i << "," << j << "] ";
                             }
                         }
@@ -199,7 +200,7 @@ int main()
                 }
                 else
                 {
-                    outtextxy(10, 440, "Path to the goal not found!");
+                    cout << "Path to the goal not found!" ;
                 }
             }
         }
