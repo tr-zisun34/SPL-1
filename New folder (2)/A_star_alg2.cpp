@@ -1,39 +1,40 @@
-#include <iostream>
+#include <bits/stdc++.h>
 #include <graphics.h>
 #include <stack>
 #include <ctime>
 #include <conio.h>
 #include <cstring>
 #include <cstdio>
+#include <cmath>
 
+using namespace std;
 #define MAZE_ROWS 16
 #define MAZE_COLS 21
 #define CELL_SIZE 30
 
 int mazeLayout[MAZE_ROWS][MAZE_COLS] =
-{
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
-    {1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
-    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
-    {1,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
-    {1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1},
-    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
-    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1},
-    {1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1},
-    {1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1},
+    {
+        {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
+        {1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1},
+        {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
+        {1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+        {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1},
+        {1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1},
+        {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
+        {1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+        {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1},
 };
 
 int goalFound = 0;
 int pathTaken[MAZE_ROWS][MAZE_COLS];
-
-using namespace std;
+int distance[MAZE_ROWS][MAZE_COLS];
 
 // Function to render the maze
 void renderMaze()
@@ -79,42 +80,74 @@ void drawPathOnMaze()
     }
 }
 
-void explorePaths(int row, int col)
+// Heuristic function for A* algorithm
+int calculateHeuristic(int x, int y, int endX, int endY)
 {
-    if (row < 0 || col < 0 || row >= MAZE_ROWS || col >= MAZE_COLS || goalFound || mazeLayout[row][col] == 1 || pathTaken[row][col] == 1)
+    // Euclidean distance heuristic
+    return static_cast<int>(sqrt((x - endX) * (x - endX) + (y - endY) * (y - endY)));
+}
+
+void aStar(int startX, int startY, int endX, int endY)
+{
+    const int INF = INT_MAX;
+    int dx[] = {1, -1, 0, 0};
+    int dy[] = {0, 0, 1, -1};
+
+    for (int i = 0; i < MAZE_ROWS; i++)
     {
-        return;
+        for (int j = 0; j < MAZE_COLS; j++)
+        {
+            ::distance[i][j] = INF;
+            pathTaken[i][j] = 0;
+        }
     }
 
-    pathTaken[row][col] = 1;
+    ::distance[startX][startY] = 0;
 
-    if (mazeLayout[row][col] == 2)
+    priority_queue<pair<int, pair<int, int> >, vector<pair<int, pair<int, int> > >, greater<pair<int, pair<int, int> > > > pq;
+    pq.push({calculateHeuristic(startX, startY, endX, endY), {startX, startY}});
+
+    while (!pq.empty())
     {
-        goalFound = 1;
-        return;
+        int x = pq.top().second.first;
+        int y = pq.top().second.second;
+        pq.pop();
+
+        pathTaken[x][y] = 1;
+
+        if (x == endX && y == endY)
+        {
+            goalFound = 1;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+
+            if (nx >= 0 && nx < MAZE_ROWS && ny >= 0 && ny < MAZE_COLS && !pathTaken[nx][ny] && mazeLayout[nx][ny] != 1)
+            {
+                int newDist = ::distance[x][y] + 1;
+                if (newDist < ::distance[nx][ny])
+                {
+                    ::distance[nx][ny] = newDist;
+                    pq.push({newDist + calculateHeuristic(nx, ny, endX, endY), {nx, ny}});
+                    customDelay(100);
+
+                    cleardevice();
+                    renderMaze();
+                    drawPathOnMaze();
+                }
+            }
+        }
     }
-
-    explorePaths(row + 1, col);
-    explorePaths(row, col + 1);
-    explorePaths(row, col - 1);
-    explorePaths(row - 1, col);
-
-    if (!goalFound)
-    {
-        pathTaken[row][col] = 0;
-    }
-
-    customDelay(100);
-
-    cleardevice();
-    renderMaze();
-    drawPathOnMaze();
 }
 
 int main()
 {
-    int startingRow =0 ;
-    int startingCol =0 ;
+    int startingRow = 0;
+    int startingCol = 0;
 
     int graphicsDriver = DETECT, graphicsMode;
     initgraph(&graphicsDriver, &graphicsMode, "");
@@ -163,7 +196,7 @@ int main()
     outtextxy(10, 50, "Hit the Button to solve the Maze");
 
     rectangle(10, 80, 275, 115);
-    outtextxy(20, 90, "1. Solve Maze by Depth First Search");
+    outtextxy(20, 90, "1. Solve Maze by A* Algorithm");
 
     int x, y;
 
@@ -182,7 +215,7 @@ int main()
                 goalFound = 0;
                 cleardevice();
                 renderMaze();
-                explorePaths(startingRow, startingCol);
+                aStar(startingRow, startingCol, 15, 15);
 
                 if (goalFound)
                 {
@@ -200,7 +233,7 @@ int main()
                 }
                 else
                 {
-                    cout << "Path to the goal not found!" ;
+                    cout << "Path to the goal not found!";
                 }
             }
         }

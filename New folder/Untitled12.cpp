@@ -1,20 +1,57 @@
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <conio.h>  // for getch() function
+#include <conio.h>
 #include <graphics.h>
 
-#define ROWS 16
-#define COLS 21
+#define MAZE_ROWS 16
+#define MAZE_COLS 21
 #define CELL_SIZE 30
 
-// Define a structure to represent a node on the grid
+int mazeLayout[MAZE_ROWS][MAZE_COLS] = {
+    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
+    {1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
+    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
+    {1,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
+    {1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1},
+    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1},
+    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
+    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1},
+    {1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1},
+    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1},
+    {1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1}
+};
+
+// Structure to represent a node on the grid
 typedef struct {
     int x, y;   // Coordinates of the node
     int g;      // Cost from start node to this node
     int h;      // Heuristic cost (estimated cost to goal)
     int f;      // Total cost (g + h)
 } Node;
+
+void renderMaze() {
+    for (int i = 0; i < MAZE_ROWS; i++) {
+        for (int j = 0; j < MAZE_COLS; j++) {
+            int xCoord = j * CELL_SIZE;
+            int yCoord = i * CELL_SIZE;
+
+            if (mazeLayout[i][j] == 1) {
+                rectangle(xCoord, yCoord, xCoord + CELL_SIZE, yCoord + CELL_SIZE);
+            } else if (mazeLayout[i][j] == 2) {
+                // Draw the circle in red
+                setcolor(GREEN);
+                setfillstyle(SOLID_FILL, RED);
+                fillellipse(xCoord + CELL_SIZE / 2, yCoord + CELL_SIZE / 2, CELL_SIZE / 3, CELL_SIZE / 3);
+            }
+        }
+    }
+}
 
 // Function to calculate the Manhattan distance heuristic between two nodes
 int calculateManhattanDistance(int x1, int y1, int x2, int y2) {
@@ -23,7 +60,7 @@ int calculateManhattanDistance(int x1, int y1, int x2, int y2) {
 
 // Function to check if a given cell is valid (within the grid)
 bool isValidCell(int x, int y) {
-    return (x >= 0 && x < ROWS && y >= 0 && y < COLS);
+    return (x >= 0 && x < MAZE_ROWS && y >= 0 && y < MAZE_COLS);
 }
 
 // Function to draw a rectangle for a cell
@@ -32,15 +69,34 @@ void drawCell(int x, int y, int color) {
     bar(x * CELL_SIZE, y * CELL_SIZE, (x + 1) * CELL_SIZE, (y + 1) * CELL_SIZE);
 }
 
-// Function to implement the A* algorithm and visualize the path
-bool aStar(int grid[ROWS][COLS], Node start, Node goal) {
-    // Initialize graphics mode
-    int gd = DETECT, gm;
-    initgraph(&gd, &gm, "C:\\Turboc3\\BGI");
+void drawPath(Node start, Node goal, Node closedList[], int closedCount) {
+    // Draw the path by backtracking from the goal to the start
+    int currentX = goal.x;
+    int currentY = goal.y;
 
+    while (currentX != start.x || currentY != start.y) {
+        drawCell(currentX, currentY, YELLOW); // Draw the path in yellow
+        renderMaze();
+
+        // Delay for visualization (you can adjust this)
+        delay(100);
+
+        // Find the parent node in the closed list
+        for (int i = 0; i < closedCount; i++) {
+            if (closedList[i].x == currentX && closedList[i].y == currentY) {
+                currentX = closedList[i].x;
+                currentY = closedList[i].y;
+                break;
+            }
+        }
+    }
+}
+
+// Function to implement the A* algorithm and visualize the path
+bool aStar(Node start, Node goal) {
     // Create open and closed lists
-    Node openList[ROWS * COLS];
-    Node closedList[ROWS * COLS];
+    Node openList[MAZE_ROWS * MAZE_COLS];
+    Node closedList[MAZE_ROWS * MAZE_COLS];
 
     // Initialize counters
     int openCount = 0;
@@ -66,27 +122,17 @@ bool aStar(int grid[ROWS][COLS], Node start, Node goal) {
         }
 
         // Mark the current node as traversed
-        grid[current.x][current.y] = 2;
+        mazeLayout[current.x][current.y] = 2;
 
         // Draw the grid with updated cells
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (grid[i][j] == 1) {
-                    drawCell(i, j, BLACK);  // Obstacle
-                } else if (grid[i][j] == 2) {
-                    drawCell(i, j, LIGHTGREEN);  // Traversed path
-                } else {
-                    drawCell(i, j, WHITE);  // Unexplored
-                }
-            }
-        }
+        renderMaze();
 
         // Delay for visualization (you can adjust this)
         delay(100);
 
         // Check if we have reached the goal
         if (current.x == goal.x && current.y == goal.y) {
-            closegraph();
+            drawPath(start, goal, closedList, closedCount);
             return true;
         }
 
@@ -98,7 +144,7 @@ bool aStar(int grid[ROWS][COLS], Node start, Node goal) {
             int newY = current.y + dy[i];
 
             // Check if the neighbor is valid and not in the closed list
-            if (isValidCell(newX, newY) && grid[newX][newY] != 1) {
+            if (isValidCell(newX, newY) && mazeLayout[newX][newY] != 1) {
                 Node neighbor;
                 neighbor.x = newX;
                 neighbor.y = newY;
@@ -121,40 +167,30 @@ bool aStar(int grid[ROWS][COLS], Node start, Node goal) {
                 }
             }
         }
+        // Add the current node to the closed list
+        closedList[closedCount++] = current;
     }
 
-    closegraph();
     printf("Path not found!\n");
     return false;
 }
 
+
+
 int main() {
-    int grid[ROWS][COLS] = {
-    {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
-    {1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
-    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
-    {1,0,0,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
-    {1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1},
-    {1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1},
-    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1},
-    {1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1},
-    {1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1},
-    {1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,1,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1}
-    };
+    int gd = DETECT, gm;
+    initgraph(&gd, &gm, "C:\\Turboc3\\BGI");
 
+    // Define start and goal nodes
     Node start = {0, 0, 0, 0, 0};
-    Node goal = {15, 15, 0, 0, 0};
+    Node goal = {MAZE_ROWS - 1, MAZE_COLS - 1, 0, 0, 0};
 
-    if (aStar(grid, start, goal)) {
+    // Call the A* algorithm function
+    if (aStar(start, goal)) {
         printf("Path found!\n");
     }
 
     getch();  // Wait for a key press
+    closegraph();  // Close the graphics window
     return 0;
 }

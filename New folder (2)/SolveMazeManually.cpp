@@ -147,11 +147,63 @@ void explorePaths(int row, int col)
         drawPathOnMaze();
     }
 }
+void manualPlay(int& startingRow, int& startingCol) {
+    int key;
+    bool validMove;
+
+    while (true) {
+        if (_kbhit()) {
+            key = _getch();
+
+            validMove = false;
+
+            switch (key) {
+            case 72:  // Up arrow key
+                if (startingRow > 0 && mazeLayout[startingRow - 1][startingCol] != 1) {
+                    startingRow--;
+                    validMove = true;
+                }
+                break;
+            case 80:  // Down arrow key
+                if (startingRow < MAZE_ROWS - 1 && mazeLayout[startingRow + 1][startingCol] != 1) {
+                    startingRow++;
+                    validMove = true;
+                }
+                break;
+            case 75:  // Left arrow key
+                if (startingCol > 0 && mazeLayout[startingRow][startingCol - 1] != 1) {
+                    startingCol--;
+                    validMove = true;
+                }
+                break;
+            case 77:  // Right arrow key
+                if (startingCol < MAZE_COLS - 1 && mazeLayout[startingRow][startingCol + 1] != 1) {
+                    startingCol++;
+                    validMove = true;
+                }
+                break;
+            }
+
+            cleardevice();
+            renderMaze();
+            drawPathOnMaze();
+            setfillstyle(SOLID_FILL, RED);
+            bar(startingCol * CELL_SIZE + CELL_SIZE / 6, startingRow * CELL_SIZE + CELL_SIZE / 6,
+                (startingCol + 1) * CELL_SIZE - CELL_SIZE / 6, (startingRow + 1) * CELL_SIZE - CELL_SIZE / 6);
+
+            if (validMove && mazeLayout[startingRow][startingCol] == 2) {
+                cout << "Congratulations! You reached the goal manually." << endl;
+                break;
+            }
+        }
+    }
+}
+
 
 int main()
 {
-    int startingRow;
-    int startingCol;
+    int startingRow = 0;
+    int startingCol= 0;
 
     int graphicsDriver = DETECT, graphicsMode;
     initgraph(&graphicsDriver, &graphicsMode, "");
@@ -164,7 +216,7 @@ int main()
     char name[50] = { 0 };
     int nameX = 160;
     int nameY = 400;
-    int ch;
+    int ch,x,y;
     int i = 0;
 
     while (true)
@@ -197,16 +249,61 @@ int main()
     outtextxy(10, 20, "Hello, ");
     outtextxy(60, 20, name);
 
+    rectangle(10, 120, 275, 155);
+    outtextxy(20, 130, "2. Solve Maze Manually");
+
+    while (true)
+{
+    if (ismouseclick(WM_LBUTTONDOWN))
+    {
+        getmouseclick(WM_LBUTTONDOWN, x, y);
+
+        if (x >= 10 && x <= 275 && y >= 20 && y <= 115)
+        {
+            // Code to solve maze using BFS
+            goalFound = 0;
+            cleardevice();
+            renderMaze();
+            explorePaths(startingRow, startingCol);
+
+            if (goalFound)
+            {
+                cout << "Path to reach the goal: " << endl;
+                for (int i = 0; i < MAZE_ROWS; i++)
+                {
+                    for (int j = 0; j < MAZE_COLS; j++)
+                    {
+                        if (pathTaken[i][j] == 1)
+                        {
+                            cout << "-> [" << i << "," << j << "] ";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                cout << "Path to the goal not found!";
+            }
+        }
+        else if (x >= 10 && x <= 275 && y >= 120 && y <= 155)
+        {
+            // Code to solve maze manually
+            goalFound = 0;
+            cleardevice();
+            renderMaze();
+            manualPlay(startingRow, startingCol);
+        }
+    }
+}
+
     outtextxy(10, 50, "Hit the Button to solve the Maze");
 
     rectangle(10, 80, 275, 115);
     outtextxy(20, 90, "1. Solve Maze by Breadth First Search");
 
-    int x, y;
-
-    cout << "Enter Starting Row and Column: ";
-    cin >> startingRow;
-    cin >> startingCol;
+    //cout << "Enter Starting Row and Column: ";
+    //cin >> startingRow;
+    //cin >> startingCol;
 
     while (true)
     {

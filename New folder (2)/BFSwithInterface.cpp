@@ -1,6 +1,5 @@
 #include <iostream>
 #include <graphics.h>
-#include <stack>
 #include <ctime>
 #include <conio.h>
 #include <cstring>
@@ -34,6 +33,39 @@ int goalFound = 0;
 int pathTaken[MAZE_ROWS][MAZE_COLS];
 
 using namespace std;
+
+// Stack Implementation
+struct Point
+{
+    int x, y;
+
+    Point() : x(0), y(0) {} // Default constructor
+
+    Point(int _x, int _y) : x(_x), y(_y) {}
+};
+
+Point stackArray[MAZE_ROWS * MAZE_COLS];
+int top = -1;
+
+void push(Point p)
+{
+    stackArray[++top] = p;
+}
+
+void pop()
+{
+    --top;
+}
+
+Point peek()
+{
+    return stackArray[top];
+}
+
+bool isEmpty()
+{
+    return top == -1;
+}
 
 // Function to render the maze
 void renderMaze()
@@ -81,40 +113,45 @@ void drawPathOnMaze()
 
 void explorePaths(int row, int col)
 {
-    if (row < 0 || col < 0 || row >= MAZE_ROWS || col >= MAZE_COLS || goalFound || mazeLayout[row][col] == 1 || pathTaken[row][col] == 1)
+    push(Point(row, col));
+
+    while (!isEmpty() && !goalFound)
     {
-        return;
+        Point current = peek();
+        int x = current.x;
+        int y = current.y;
+        pop();
+
+        if (x < 0 || y < 0 || x >= MAZE_ROWS || y >= MAZE_COLS || mazeLayout[x][y] == 1 || pathTaken[x][y] == 1)
+        {
+            continue;
+        }
+
+        pathTaken[x][y] = 1;
+
+        if (mazeLayout[x][y] == 2)
+        {
+            goalFound = 1;
+            break;
+        }
+
+        push(Point(x + 1, y));
+        push(Point(x, y + 1));
+        push(Point(x, y - 1));
+        push(Point(x - 1, y));
+
+        customDelay(100);
+
+        cleardevice();
+        renderMaze();
+        drawPathOnMaze();
     }
-
-    pathTaken[row][col] = 1;
-
-    if (mazeLayout[row][col] == 2)
-    {
-        goalFound = 1;
-        return;
-    }
-
-    explorePaths(row + 1, col);
-    explorePaths(row, col + 1);
-    explorePaths(row, col - 1);
-    explorePaths(row - 1, col);
-
-    if (!goalFound)
-    {
-        pathTaken[row][col] = 0;
-    }
-
-    customDelay(100);
-
-    cleardevice();
-    renderMaze();
-    drawPathOnMaze();
 }
 
 int main()
 {
-    int startingRow =0 ;
-    int startingCol =0 ;
+    int startingRow = 0;
+    int startingCol= 0;
 
     int graphicsDriver = DETECT, graphicsMode;
     initgraph(&graphicsDriver, &graphicsMode, "");
@@ -124,7 +161,7 @@ int main()
 
     // Merge the input handling and "Solve Maze" button code from Code 2
     outtextxy(10, 400, "Enter Your Name: ");
-    char name[50] = {0};
+    char name[50] = { 0 };
     int nameX = 160;
     int nameY = 400;
     int ch;
@@ -163,7 +200,7 @@ int main()
     outtextxy(10, 50, "Hit the Button to solve the Maze");
 
     rectangle(10, 80, 275, 115);
-    outtextxy(20, 90, "1. Solve Maze by Depth First Search");
+    outtextxy(20, 90, "1. Solve Maze by Breadth First Search");
 
     int x, y;
 
@@ -200,7 +237,7 @@ int main()
                 }
                 else
                 {
-                    cout << "Path to the goal not found!" ;
+                    cout << "Path to the goal not found!";
                 }
             }
         }
