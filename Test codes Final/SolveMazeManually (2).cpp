@@ -4,12 +4,14 @@
 #include <conio.h>
 #include <cstring>
 #include <cstdio>
+#include <chrono>
 
 #define MAZE_ROWS 16
 #define MAZE_COLS 21
 #define CELL_SIZE 30
 
-int mazeLayout[MAZE_ROWS][MAZE_COLS] = {
+int mazeLayout[MAZE_ROWS][MAZE_COLS] =
+{
     {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     {0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
     {1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1},
@@ -31,7 +33,7 @@ int mazeLayout[MAZE_ROWS][MAZE_COLS] = {
 int goalFound = 0;
 int pathTaken[MAZE_ROWS][MAZE_COLS];
 
-using namespace std::chrono;
+using namespace std;
 
 // Stack Implementation
 struct Point
@@ -110,8 +112,7 @@ void drawPathOnMaze()
     }
 }
 
-
-void explorePaths(int row, int col, int timeLimitSeconds)
+void explorePaths(int row, int col, chrono::high_resolution_clock::time_point startTime)
 {
     push(Point(row, col));
 
@@ -121,12 +122,6 @@ void explorePaths(int row, int col, int timeLimitSeconds)
         int x = current.x;
         int y = current.y;
         pop();
-
-        if (isTimeUp(startTime, timeLimitSeconds))
-        {
-            cout << "Time limit exceeded. Exiting..." << endl;
-            return;
-        }
 
         if (x < 0 || y < 0 || x >= MAZE_ROWS || y >= MAZE_COLS || mazeLayout[x][y] == 1 || pathTaken[x][y] == 1)
         {
@@ -138,6 +133,16 @@ void explorePaths(int row, int col, int timeLimitSeconds)
         if (mazeLayout[x][y] == 2)
         {
             goalFound = 1;
+            auto endTime = chrono::high_resolution_clock::now();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(endTime - startTime);
+
+            // Display time on the graphics window
+            setcolor(YELLOW);
+            settextstyle(DEFAULT_FONT, HORIZ_DIR, 2);
+            char timeString[100];
+            sprintf(timeString, "Time taken to reach the goal: %lld milliseconds", duration.count());
+            outtextxy(10, 200, timeString);
+
             break;
         }
 
@@ -153,6 +158,7 @@ void explorePaths(int row, int col, int timeLimitSeconds)
         drawPathOnMaze();
     }
 }
+
 
 void manualPlay(int& startingRow, int& startingCol) {
     int key;
@@ -210,9 +216,7 @@ void manualPlay(int& startingRow, int& startingCol) {
 int main()
 {
     int startingRow = 0;
-    int startingCol= 0;
-
-
+    int startingCol = 0;
 
     int graphicsDriver = DETECT, graphicsMode;
     initgraph(&graphicsDriver, &graphicsMode, "");
@@ -222,10 +226,10 @@ int main()
 
     // Merge the input handling and "Solve Maze" button code from Code 2
     outtextxy(10, 400, "Enter Your Name: ");
-    char name[50] = { 0 };
+    char name[50] = {0};
     int nameX = 160;
     int nameY = 400;
-    int ch,x,y;
+    int ch, x, y;
     int i = 0;
 
     while (true)
@@ -255,15 +259,14 @@ int main()
         }
     }
 
-    //manualPlay(startingRow, startingCol);
-
     outtextxy(10, 20, "Hello, ");
     outtextxy(60, 20, name);
 
-    outtextxy(10, 50, "Hit the Button to solve the Maze");
+    rectangle(10, 80, 275, 115);
+    outtextxy(20, 90, "1. Solve Maze by Breadth First Search");
 
     rectangle(10, 120, 275, 155);
-    outtextxy(20, 130, "1. Solve Maze Manually");
+    outtextxy(20, 130, "2. Solve Maze Manually");
 
     while (true)
     {
@@ -271,67 +274,25 @@ int main()
         {
             getmouseclick(WM_LBUTTONDOWN, x, y);
 
-            if (x >= 10 && x <= 275 && y >= 20 && y <= 115)
+            if (x >= 10 && x <= 275 && y >= 120 && y <= 155)
+            {
+                // Code to solve maze manually
+                goalFound = 0;
+                cleardevice();
+                renderMaze();
+                manualPlay(startingRow, startingCol);
+                break;
+            }
+            else if (x >= 10 && x <= 275 && y >= 20 && y <= 115)
             {
                 goalFound = 0;
                 cleardevice();
                 renderMaze();
 
-                int timeLimitSeconds = 60; // Set your desired time limit here
-                explorePaths(startingRow, startingCol, timeLimitSeconds);
+                // Measure start time
+                auto startTime = chrono::high_resolution_clock::now();
 
-            if (goalFound)
-            {
-                cout << "Path to reach the goal: " << endl;
-                for (int i = 0; i < MAZE_ROWS; i++)
-                {
-                    for (int j = 0; j < MAZE_COLS; j++)
-                    {
-                        if (pathTaken[i][j] == 1)
-                        {
-                            cout << "-> [" << i << "," << j << "] ";
-                        }
-                    }
-                }
-            }
-            else
-            {
-                cout << "Path to the goal not found within the time limit!" << endl;
-            }
-            }
-        }
-        else if (x >= 10 && x <= 275 && y >= 120 && y <= 155)
-        {
-            // Code to solve maze manually
-            goalFound = 0;
-            cleardevice();
-            renderMaze();
-            manualPlay(startingRow, startingCol);
-        }
-    }
-}
-
-
-
-    rectangle(10, 80, 275, 115);
-    outtextxy(20, 90, "2. Solve Maze by Breadth First Search");
-
-    //cout << "Enter Starting Row and Column: ";
-    //cin >> startingRow;
-    //cin >> startingCol;
-
-    while (true)
-    {
-        if (ismouseclick(WM_LBUTTONDOWN))
-        {
-            getmouseclick(WM_LBUTTONDOWN, x, y);
-
-            if (x >= 10 && x <= 275 && y >= 20 && y <= 115)
-            {
-                goalFound = 0;
-                cleardevice();
-                renderMaze();
-                explorePaths(startingRow, startingCol);
+                explorePaths(startingRow, startingCol, startTime);
 
                 if (goalFound)
                 {
@@ -351,6 +312,7 @@ int main()
                 {
                     cout << "Path to the goal not found!";
                 }
+                break;
             }
         }
     }
@@ -360,4 +322,3 @@ int main()
 
     return 0;
 }
-

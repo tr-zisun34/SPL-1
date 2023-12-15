@@ -1,0 +1,85 @@
+# depslib dependency file v1.0
+1702556419 source:d:\iit\3rd semester\se 305- spl 1\mysticmazesolver\dfs.cpp
+	<iostream>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+
+1702568932 source:d:\iit\3rd semester\se 305- spl 1\mysticmazesolver\main.cpp
+	<iostream>
+	<graphics.h>
+	<conio.h>
+
+1702556641 source:d:\iit\3rd semester\se 305- spl 1\mysticmazesolver\bfs.cpp
+	<iostream>
+	<graphics.h>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+
+1702557239 source:d:\iit\3rd semester\se 305- spl 1\mysticmazesolver\dijkstra.cpp
+	<bits/stdc++.h>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+	<cmath>
+
+1702557302 source:d:\iit\3rd semester\se 305- spl 1\mysticmazesolver\a_star.cpp
+	<bits/stdc++.h>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+	<cmath>
+
+1702557302 source:c:\users\zisun\desktop\spl-1\mysticmazesolver\a_star.cpp
+	<bits/stdc++.h>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+	<cmath>
+
+1702556641 source:c:\users\zisun\desktop\spl-1\mysticmazesolver\bfs.cpp
+	<iostream>
+	<graphics.h>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+
+1702556419 source:c:\users\zisun\desktop\spl-1\mysticmazesolver\dfs.cpp
+	<iostream>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+
+1702557239 source:c:\users\zisun\desktop\spl-1\mysticmazesolver\dijkstra.cpp
+	<bits/stdc++.h>
+	<graphics.h>
+	<stack>
+	<ctime>
+	<conio.h>
+	<cstring>
+	<cstdio>
+	<cmath>
+
+1702645537 source:c:\users\zisun\desktop\spl-1\mysticmazesolver\main.cpp
+	<iostream>
+	<graphics.h>
+	<conio.h>
+
